@@ -5,6 +5,7 @@ import Form from "./Form";
 import TodoList from "./TodoList";
 
 const URL = "http://localhost:9000/api/todos";
+// 0
 
 export default class App extends React.Component {
   constructor() {
@@ -52,13 +53,15 @@ export default class App extends React.Component {
   };
 
   handleDeleteTask = (taskId) => {
+    console.log(taskId, typeof taskId);
     axios
       .delete(`http://localhost:9000/api/todos/${taskId}`)
       .then((res) => {
         console.log(res);
-        const updatedData = this.state.data.filter(
-          (task) => task.id !== taskId
-        );
+        const updatedData = this.state.data.filter((task) => {
+          return task.id !== taskId;
+        });
+        console.log(updatedData);
         this.setState({ data: updatedData });
       })
       .catch((err) => console.error(err));
@@ -66,11 +69,10 @@ export default class App extends React.Component {
 
   handleClear = () => {
     // get the date from the state and then update all items to have completed: false
-    console.log("handleClear");
-    let updatedData = this.state.data.map((item) => {
-      return { ...item, completed: false };
+    this.setState({
+      ...this.state,
+      displayCompleted: !this.state.displayCompleted,
     });
-    this.setState({ data: updatedData });
   };
 
   render() {
@@ -86,13 +88,19 @@ export default class App extends React.Component {
             toggleComplete={this.handleToggleComplete}
             data={this.state.data}
             deleteTask={this.handleDeleteTask}
+            displayCompleted={this.state.displayCompleted}
           />
         </div>
         <Form
+          fetchAllTodos={this.fetchAllTodos}
+          URL={URL}
           submit={this.handleSubmit}
           handleChange={this.handleChange}
           onClear={this.handleClear}
         />
+        <button onClick={this.handleClear}>
+          {this.state.displayCompleted ? "Hide" : "Show"} Completed Task
+        </button>
       </div>
     );
   }

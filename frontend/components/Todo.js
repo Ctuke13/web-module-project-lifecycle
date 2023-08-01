@@ -6,6 +6,7 @@ export default class Todo extends React.Component {
     this.state = {
       isEditing: false,
       currentText: "",
+      displayCompleted: true,
     };
   }
 
@@ -27,37 +28,30 @@ export default class Todo extends React.Component {
     return (
       <div>
         <ul>
-          {this.props.data.map((task, idx) => {
-            return this.state.isEditing && task.id === this.state.editTaskId ? (
-              <li key={idx}>
-                <form onSubmit={(e) => this.handleSubmit(e, task.id)}>
-                  <input
-                    type="text"
-                    value={this.state.currentText}
-                    onChange={this.handleInputChange}
-                  />
-                  <button type="submit">Save</button>
-                </form>
-              </li>
-            ) : (
-              <li
-                key={idx}
-                className="task"
-                onDoubleClick={() => this.props.toggleComplete(task.id)}
-                style={{
-                  textDecoration: task.completed ? "line-through" : "none",
-                }}
-              >
-                {task.name}
-                &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
-                <button onClick={() => this.handleEdit(task)}>Edit</button>
-                &nbsp;
-                <button onClick={() => this.props.deleteTask(task.id)}>
-                  Delete
-                </button>
-              </li>
-            );
-          })}
+          {this.props.data.reduce((acc, task, idx) => {
+            if (this.state.displayCompleted || !task.completed) {
+              return acc.concat(
+                <li
+                  key={idx}
+                  className="task"
+                  onDoubleClick={() => this.props.toggleComplete(task.id)}
+                  style={{
+                    textDecoration: task.completed ? "line-through" : "none",
+                  }}
+                >
+                  <div>{task.name}</div>
+                  <br />
+                  <button onClick={() => this.handleEdit(task)}>Edit</button>
+                  &nbsp;
+                  <button onClick={() => this.props.deleteTask(task.id)}>
+                    Delete
+                  </button>
+                </li>
+              );
+            } else {
+              return acc;
+            }
+          }, [])}
         </ul>
       </div>
     );

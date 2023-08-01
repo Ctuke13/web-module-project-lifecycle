@@ -9,6 +9,8 @@ export default class Form extends React.Component {
         id: "",
         name: "",
         completed: false,
+        error: "",
+        displayCompleted: true,
       },
     };
   }
@@ -26,19 +28,27 @@ export default class Form extends React.Component {
   };
 
   handleSubmit = (e) => {
+    console.log(this.props.URL);
+    e.preventDefault();
     const newTask = this.state.newTask;
     axios
-      .post("http://localhost:9000/api/todos", newTask)
-      .then(
-        (res) => console.log(res.data),
-        this.setState({ ...this.state, name: "", id: "" })
-      )
-      .catch((err) => console.error(err));
+      .post(this.props.URL, newTask)
+      .then((res) => {
+        this.props.fetchAllTodos();
+      })
+      .catch((err) => {
+        debugger;
+        this.setState({ ...this.state, error: err.response.data.message });
+      });
   };
 
   render() {
     return (
       <form onSubmit={this.handleSubmit}>
+        <div className="error">
+          {this.state.error ? "Error: " : ""}
+          {this.state.error}
+        </div>
         <label>
           Add New Task:&nbsp;
           <input
@@ -48,9 +58,9 @@ export default class Form extends React.Component {
           />
         </label>{" "}
         <button>Add</button>
-        <button type="button" onClear={this.props.onClear}>
+        {/* <button type="button" onClear={this.props.onClear}>
           Clear Completed
-        </button>
+        </button> */}
       </form>
     );
   }
