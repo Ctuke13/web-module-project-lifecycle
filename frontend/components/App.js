@@ -11,19 +11,25 @@ export default class App extends React.Component {
     super();
     this.state = {
       data: [],
+      error: "",
     };
   }
 
-  componentDidMount() {
-    console.log(this.state);
+  fetchAllTodos = () => {
     axios
-      .get("http://localhost:9000/api/todos")
+      .get(URL)
       .then((res) =>
-        this.setState({ data: res.data.data }, () => {
+        this.setState({ ...this.state, data: res.data.data }, () => {
           console.log(this.state);
         })
       )
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        this.setState({ ...this.state, error: err.response.data.message });
+      });
+  };
+
+  componentDidMount() {
+    this.fetchAllTodos();
   }
 
   handleToggleComplete = (taskId) => {
@@ -58,15 +64,35 @@ export default class App extends React.Component {
       .catch((err) => console.error(err));
   };
 
+  handleClear = () => {
+    // get the date from the state and then update all items to have completed: false
+    console.log("handleClear");
+    let updatedData = this.state.data.map((item) => {
+      return { ...item, completed: false };
+    });
+    this.setState({ data: updatedData });
+  };
+
   render() {
     return (
       <div className="app-container">
-        <TodoList
-          toggleComplete={this.handleToggleComplete}
-          data={this.state.data}
-          deleteTask={this.handleDeleteTask}
+        <div id="error">
+          {this.state.error ? "Error: " : ""}
+          {this.state.error}
+        </div>
+        <div id="todos">
+          <h2>Todos:</h2>
+          <TodoList
+            toggleComplete={this.handleToggleComplete}
+            data={this.state.data}
+            deleteTask={this.handleDeleteTask}
+          />
+        </div>
+        <Form
+          submit={this.handleSubmit}
+          handleChange={this.handleChange}
+          onClear={this.handleClear}
         />
-        <Form submit={this.handleSubmit} handleChange={this.handleChange} />
       </div>
     );
   }

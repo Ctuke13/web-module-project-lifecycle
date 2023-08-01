@@ -16,10 +16,11 @@ export default class Form extends React.Component {
   handleChange = (e) => {
     e.preventDefault();
     console.log(e.target.value);
+    const { value } = e.target;
     const newTask = {
       ...this.state.newTask,
       id: Math.random(),
-      name: e.target.value,
+      name: value,
     };
     this.setState({ newTask });
   };
@@ -47,6 +48,9 @@ export default class Form extends React.Component {
           />
         </label>{" "}
         <button>Add</button>
+        <button type="button" onClear={this.props.onClear}>
+          Clear Completed
+        </button>
       </form>
     );
   }
